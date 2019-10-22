@@ -44,11 +44,39 @@ class PortfolioHandler(object):
             quantity = 0
         else:
             quantity = signal_event.suggested_quantity
-        order = SuggestedOrder(
-            signal_event.ticker,
-            signal_event.action,
-            quantity=quantity
-        )
+
+        ticker = signal_event.ticker
+        if self.price_handler.istick():
+            bid, ask = self.price_handler.get_best_bid_ask(ticker)
+        else:
+            ask = self.price_handler.get_last_close(ticker)
+
+        enough = True
+        if signal_event.action == "BOT":
+            tot_price = ask * quantity
+            if tot_price > self.portfolio.cur_cash:
+                enough = False
+                msg = """
+                    Current cash isn't enough, couldn't create
+                    order (ticker: %s, quantity: %d)
+                    """ % (ticker, quantity)
+        else:
+            if quantity > self.portfolio.positions[ticker].quantity:
+                enough = False
+                msg = """
+                    Current cash isn't enough, couldn't create
+                    order (ticker: %s, quantity: %d)
+                    """ % (ticker, quantity)
+
+        if not enough:
+            order = None
+            print(msg)
+        else:
+            order = SuggestedOrder(
+                signal_event.ticker,
+                signal_event.action,
+                quantity=quantity
+            )
         return order
 
     def _place_orders_onto_queue(self, order_list):
@@ -96,6 +124,8 @@ class PortfolioHandler(object):
         """
         # Create the initial order list from a signal event
         initial_order = self._create_order_from_signal(signal_event)
+        if initial_order is None:
+            return
         # Size the quantity of the initial order
         sized_order = self.position_sizer.size_order(
             self.portfolio, initial_order
