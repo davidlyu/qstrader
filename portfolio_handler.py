@@ -1,5 +1,7 @@
+from math import floor
 from .order.suggested import SuggestedOrder
 from .portfolio import Portfolio
+from .price_parser import PriceParser
 
 
 class PortfolioHandler(object):
@@ -32,6 +34,21 @@ class PortfolioHandler(object):
         self.risk_manager = risk_manager
         self.portfolio = Portfolio(price_handler, initial_cash)
 
+    def _proportion_to_quantity(self, signal_event):
+        ticker = signal_event.ticker
+        proportion = signal_event.suggested_proportion
+        if proportion > 1.0:
+            print("suggested_proportion shouldn't greater than 1.0")
+            quantity = 0
+        else:
+            price = self.price_handler.tickers[ticker]["adj_close"]
+            price = PriceParser.display(price)
+            equity = PriceParser.display(self.portfolio.equity)
+            dollar_weight = proportion * equity
+            quantity = int(floor(dollar_weight / price))
+        return quantity
+
+
     def _create_order_from_signal(self, signal_event):
         """
         Take a SignalEvent object and use it to form a
@@ -40,11 +57,13 @@ class PortfolioHandler(object):
         At this stage they are simply "suggestions" that the
         RiskManager will either verify, modify or eliminate.
         """
-        if signal_event.suggested_quantity is None:
-            quantity = 0
-        else:
+        if signal_event.suggested_quantity is not None:
             quantity = signal_event.suggested_quantity
-
+        elif signal_event.suggested_proportion is not None:
+            quantity = self._proportion_to_quantity(signal_event)
+        else:
+            quantity = 0
+                
         ticker = signal_event.ticker
         if self.price_handler.istick():
             bid, ask = self.price_handler.get_best_bid_ask(ticker)

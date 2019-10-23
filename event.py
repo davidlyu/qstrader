@@ -147,7 +147,11 @@ class SignalEvent(Event):
     Handles the event of sending a Signal from a Strategy object.
     This is received by a Portfolio object and acted upon.
     """
-    def __init__(self, ticker, action, suggested_quantity=None):
+    def __init__(
+        self, ticker, action,
+        suggested_quantity=None,
+        suggested_proportion=None
+    ):
         """
         Initialises the SignalEvent.
 
@@ -158,11 +162,15 @@ class SignalEvent(Event):
             representing a suggested absolute quantity of units
             of an asset to transact in, which is used by the
             PositionSizer and RiskManager.
+        suggested_proportion - Optional positively valued fraction
+            less than 1.0, representing a suggested proportion of an
+            asset to transact in.
         """
         self.type = EventType.SIGNAL
         self.ticker = ticker
         self.action = action
         self.suggested_quantity = suggested_quantity
+        self.suggested_proportion = suggested_proportion
 
 
 class OrderEvent(Event):
