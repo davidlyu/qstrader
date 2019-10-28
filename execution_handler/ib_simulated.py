@@ -77,7 +77,8 @@ class IBSimulatedExecutionHandler(AbstractExecutionHandler):
                 exchange, fill_price,
                 commission
             )
-            self.events_queue.put(fill_event)
 
             if self.compliance is not None:
                 self.compliance.record_trade(fill_event)
+
+            return fill_event
