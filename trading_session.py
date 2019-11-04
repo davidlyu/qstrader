@@ -122,6 +122,8 @@ class TradingSession(object):
         while self._continue_loop_condition():
             try:
                 event = self.events_queue.get(False)
+                # if event.type == EventType.SIGNAL:
+                #     print("++received signal event: %s, %s" % (event.ticker, event.action))
             except queue.Empty:
                 self.price_handler.stream_next()
             else:
@@ -142,11 +144,14 @@ class TradingSession(object):
                     elif event.type == EventType.SENTIMENT:
                         self.strategy.calculate_signals(event)
                     elif event.type == EventType.SIGNAL:
-                        self.portfolio_handler.on_signal(event)
-                    elif event.type == EventType.ORDER:
-                        self.execution_handler.execute_order(event)
-                    elif event.type == EventType.FILL:
-                        self.portfolio_handler.on_fill(event)
+                        order_events = self.portfolio_handler.on_signal(event)
+                        fill_events = []
+                        for order in order_events:
+                            if order.type == EventType.ORDER:
+                                fill_events.append(self.execution_handler.execute_order(order))
+                        for fill in fill_events:
+                            if fill.type == EventType.FILL:
+                                self.portfolio_handler.on_fill(fill)
                     else:
                         raise NotImplemented("Unsupported event.type '%s'" % event.type)
 

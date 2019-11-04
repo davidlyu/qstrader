@@ -100,7 +100,7 @@ class AbstractBarPriceHandler(AbstractPriceHandler):
         Returns the most recent actual (unadjusted) closing price.
         """
         if ticker in self.tickers:
-            close_price = self.tickers[ticker]["close"]
+            close_price = self.tickers[ticker]["adj_close"]
             return close_price
         else:
             print(

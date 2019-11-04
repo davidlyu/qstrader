@@ -46,6 +46,9 @@ class PortfolioHandler(object):
             equity = PriceParser.display(self.portfolio.equity)
             dollar_weight = proportion * equity
             quantity = int(floor(dollar_weight / price))
+            # print("    price: %0.2f, equity: %0.2f, proportion: %0.2f, quantity: %d" % (
+            #     price, equity, proportion, quantity
+            # ))
         return quantity
 
 
@@ -77,14 +80,14 @@ class PortfolioHandler(object):
                 enough = False
                 msg = """
                     Current cash isn't enough, couldn't create
-                    order (ticker: %s, quantity: %d)
+                    order (ticker: %s, quantity: %d, LONG)
                     """ % (ticker, quantity)
         else:
             if quantity > self.portfolio.positions[ticker].quantity:
                 enough = False
                 msg = """
-                    Current cash isn't enough, couldn't create
-                    order (ticker: %s, quantity: %d)
+                    Current quantity isn't enough, couldn't create
+                    order (ticker: %s, quantity: %d, SHORT)
                     """ % (ticker, quantity)
 
         if not enough:
@@ -154,7 +157,7 @@ class PortfolioHandler(object):
             self.portfolio, sized_order
         )
         # Place orders onto events queue
-        self._place_orders_onto_queue(order_events)
+        return order_events
 
     def on_fill(self, fill_event):
         """
