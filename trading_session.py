@@ -2,7 +2,7 @@ from __future__ import print_function
 from datetime import datetime
 from .compat import queue
 from .event import EventType
-from .price_handler.yahoo_daily_csv_bar import YahooDailyCsvBarPriceHandler
+from .price_handler.daily_sql_bar import DailySqlBarPriceHandler
 from .price_parser import PriceParser
 from .position_sizer.fixed import FixedPositionSizer
 from .position_sizer.naive import NaivePositionSizer
@@ -63,10 +63,11 @@ class TradingSession(object):
         within the session.
         """
         if self.price_handler is None and self.session_type == "backtest":
-            self.price_handler = YahooDailyCsvBarPriceHandler(
-                self.config.CSV_DATA_DIR, self.events_queue,
-                self.tickers, start_date=self.start_date,
-                end_date=self.end_date
+            self.price_handler = DailySqlBarPriceHandler(
+                self.events_queue,
+                start_date=self.start_date,
+                end_date=self.end_date,
+                init_tickers=self.tickers
             )
 
         if self.position_sizer is None:
