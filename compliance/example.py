@@ -41,7 +41,7 @@ class ExampleCompliance(AbstractCompliance):
             "commission"
         ]
         fname = os.path.expanduser(os.path.join(self.config.OUTPUT_DIR, self.csv_filename))
-        with open(fname, 'a') as csvfile:
+        with open(fname, 'a', newline='') as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
 
@@ -50,7 +50,7 @@ class ExampleCompliance(AbstractCompliance):
         Append all details about the FillEvent to the CSV trade log.
         """
         fname = os.path.expanduser(os.path.join(self.config.OUTPUT_DIR, self.csv_filename))
-        with open(fname, 'a') as csvfile:
+        with open(fname, 'a', newline='') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow([
                 fill.timestamp, fill.ticker,
