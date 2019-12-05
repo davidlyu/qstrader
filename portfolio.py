@@ -1,6 +1,9 @@
+import logging
+logging.basicConfig(level=logging.INFO)
+
 from .position import Position
 
-# from .price_parser import PriceParser
+from .price_parser import PriceParser
 
 class Portfolio(object):
     def __init__(self, price_handler, cash):
@@ -125,20 +128,20 @@ class Portfolio(object):
         Hence, this single method will be called by the
         PortfolioHandler to update the Portfolio itself.
         """
-        # print("before")
-        # print("cur_cash: %0.2f, ticker: %s, action: %s, quantity: %d, price: %0.2f" % (
-        #     PriceParser.display(self.cur_cash),
-        #     ticker, action, quantity,
-        #     PriceParser.display(price)))
+        logging.debug("Before: cur_cash: %0.2f, ticker: %s, action: %s, quantity: %d, price: %0.2f, equity: %0.2f" % (
+            PriceParser.display(self.cur_cash),
+            ticker, action, quantity,
+            PriceParser.display(price),
+            PriceParser.display(self.equity)))
         if action == "BOT":
             self.cur_cash -= ((quantity * price) + commission)
         elif action == "SLD":
             self.cur_cash += ((quantity * price) - commission)
-        # print("after")
-        # print("cur_cash: %0.2f, ticker: %s, action: %s, quantity: %d, price: %0.2f\n" % (
-        #     PriceParser.display(self.cur_cash),
-        #     ticker, action, quantity,
-        #     PriceParser.display(price)))
+        logging.debug("After: cur_cash: %0.2f, ticker: %s, action: %s, quantity: %d, price: %0.2f, equity: %0.2f\n" % (
+            PriceParser.display(self.cur_cash),
+            ticker, action, quantity,
+            PriceParser.display(price),
+            PriceParser.display(self.equity)))
 
         if ticker not in self.positions:
             self._add_position(

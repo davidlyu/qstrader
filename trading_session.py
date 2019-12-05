@@ -10,7 +10,8 @@ from .risk_manager.example import ExampleRiskManager
 from .portfolio_handler import PortfolioHandler
 from .compliance.example import ExampleCompliance
 from .execution_handler.ib_simulated import IBSimulatedExecutionHandler
-from .statistics.tearsheet import TearsheetStatistics
+from .statistics.tearsheet_echarts import TearsheetStatistics
+from .timer import timer
 
 
 class TradingSession(object):
